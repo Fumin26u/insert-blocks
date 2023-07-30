@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>insert-blocks</title>
+    <style>
+        #block-field {
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .block {
+            border: 4px solid #aaa;
+            width: 160px;
+            height: 160px;
+        }
+
+        .block > p {
+            margin: 0;
+            padding: 56px;
+            font-size: 32px;
+            text-align: center;
+        }
+
+        .button-area {
+            width: 100%;
+        }
+
+        .button-area > button {
+            width: 48%;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div id="template" style="display: none;">
+        <div class="block">
+            <p class="text-area"></p>
+        </div>
+        <div class="button-area">
+            <button class="button-left">←</button>
+            <button class="button-right">→</button>
+        </div>
+    </div>
+    <section id="block-field">
+    </section>
+</main>
+</body>
+<script>
+{
+    const blocks = ['a', 'b', 'c', 'd', 'e'];
+    const blockField = document.getElementById('block-field');
+
+    const templateBlock = document.getElementById('template');
+    // 配列の要素数分ブロックを画面に配置
+    function setBlocks(array) {
+        array.forEach(block => {
+            const templateClone = templateBlock.cloneNode(true);
+            // 複数作成するのでidを削除
+            templateClone.id = '';
+            // displayをblockに変更
+            templateClone.style.display = 'block';
+            // pタグに要素の値を追加
+            templateClone.querySelector('.text-area').innerText = block;
+            // 要素をblock-fieldに追加
+            blockField.appendChild(templateClone);
+        });
+    }
+
+    // 左右ボタンにonclickで順番入れ替え関数を配置
+    function setOnclickOnButtons(buttonAreas) {
+        buttonAreas.forEach((button, index) => {
+            const buttonLeft = button.querySelector('.button-left');
+            const buttonRight = button.querySelector('.button-right');
+            buttonLeft.setAttribute('onclick', `changeOrder(${index}, -1)`);
+            buttonRight.setAttribute('onclick', `changeOrder(${index}, 1)`);
+        });
+    }
+
+    // 指定した方向に要素を移動
+    function changeOrder(index, direction) {
+        // 指定した方向に要素がない場合は終了
+        if (index + direction < 0 || blocks.length <= index + direction) {
+            return;
+        }
+        
+        // 一度ブロックをすべて削除
+        while (blockField.firstChild) {
+            blockField.removeChild(blockField.firstChild);
+        }
+
+        // 前または後ろの要素と入れ替え
+        const arg = blocks[index];
+        blocks[index] = blocks[index + direction];
+        blocks[index + direction] = arg;
+
+        // 入れ替えた配列で要素を再挿入
+        setBlocks(blocks);
+        const buttons = blockField.querySelectorAll('.button-area');
+        setOnclickOnButtons(buttons);
+    }
+    
+    // 画面読み込み時に配列からブロックを追加
+    window.onload = () => {
+        setBlocks(blocks);
+        const buttons = blockField.querySelectorAll('.button-area');
+        setOnclickOnButtons(buttons);
+    }
+}  
+</script>
+</html>
